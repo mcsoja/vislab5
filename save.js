@@ -1,8 +1,8 @@
-// CHART INIT ------------------------------
-
-let type = document.querySelector("#group-by").value;
-
-// create svg with margin convention
+d3.csv('coffee-house-chains.csv', d3.autoType)
+.then(data=>{
+    Data = data
+    console.log(Data)
+//create svg with margin convention
 let margin = { top: 40, right: 20, bottom: 40, left: 90 },
   width =
     document.querySelector(".chart").clientWidth -
@@ -19,8 +19,7 @@ let svg = d3
   .attr("height", height + margin.top + margin.bottom)
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// create scales without domains
+// create scales
 let x = d3
   .scaleBand()
   .range([0, width])
@@ -34,34 +33,27 @@ let xAxis = d3
   .tickFormat(function(d) {
     return returnString(d, 50);
   });
-function returnString(content) {
-    return content;}
 
 let yAxis = d3.axisLeft().scale(y);
 
-// create axes and axis title containers
 let xAxisGroup = svg.append("g").attr("class", "x-axis axis");
 
 let yAxisGroup = svg.append("g").attr("class", "y-axis axis");
 
-// (Later) Define update parameters: measure type, sorting direction
+  x.domain(
+    data.map(function(d) {
+      return d.company;
+    })
+  );
+  y.domain([
+    0,
+    d3.max(data, function(d) {
+      return d.revenue;
+    })
+  ]);
 
-// CHART UPDATE FUNCTION -------------------
-function update(data, type){
-    type = document.querySelector("#group-by").value;
-    // update domains
-    console.log("updating")
-    x.domain(
-        data.map(function(d) {
-          return d.company;
-        })
-      );
-      y.domain([
-        0,
-        d3.max(data, d=>d[type])
-      ]);
-    // update bars
-    let bar1 = svg
+  // create bars
+  let bar1 = svg
     .selectAll(".bar1")
     .remove()
     .exit()
@@ -76,43 +68,35 @@ function update(data, type){
       return x(d.company);
     })
     .attr("y", function(d) {
-      return y(d[type]);
+      return y(d.revenue);
     })
     .attr("height", function(d) {
-      return height - y(d[type]);
+      return height - y(d.revenue);
     })
     .attr("width", x.bandwidth())
+ 
 
-	// update axes and axis title
-    xAxisGroup = svg
+
+  // create axes and axis title
+  xAxisGroup = svg
     .select(".x-axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
-    yAxisGroup = svg.select(".y-axis").call(yAxis);
+  yAxisGroup = svg.select(".y-axis").call(yAxis);
 
-    svg.select("text.axis-title").remove();
-  svg.append("text")
+  svg.select("text.axis-title").remove();
+  svg
+    .append("text")
     .attr("class", "axis-title")
     .attr("x", -5)
     .attr("y", -15)
     .attr("dy", ".1em")
     .style("text-anchor", "end")
-    .text(function() {
-        if (document.querySelector("#group-by").value == 'stores'){
-            return "Stores"
-        } else{
-            return "Revenue"
-        }
-    });
+    .text("Stores");
+
+
+function returnString(content) {
+  return content;
 }
-
-// CHART UPDATES ---------------------------
-
-// Loading data
-d3.csv('coffee-house-chains.csv', d3.autoType).then(data => {
-    console.log(data)
-    update(data, type); // simply call the update function with the supplied date
-});
-
-// (Later) Handling the sorting direction change
+})
