@@ -16,11 +16,14 @@
     
   </head>
   <body> 
+    <h1 style="color: blue;">Coffee House Chains</h1>  
+    <h3>A ranking of selected leading coffee house chains worldwide</h3>
     <label for="group-by">Group By</label>
-    <select id="group-by">
+    <select id="group-by" onchange="callUpdate()">
       <option value="stores">Stores worldwide</option>
       <option value="revenue">Revenue in billion U.S. dollars</option>
     </select>
+    <button class="sort" onclick="callUpdate()">Sort</button>
       <div class="chart"> </div>
     
     
